@@ -6,16 +6,19 @@ namespace QuestionSearcher.Converter
 {
   internal class QuestionToQuestionViewModelConverter
   {
-    public QuestionViewModel[] ConvertQuestions(Question[] questions)
+    public QuestionViewModel[] ConvertQuestionaireCatalog(QuestionaireCatalog questionaireCatalog)
     {
-      QuestionViewModel[] questionViewModels = new QuestionViewModel[questions.Length];
+      List<QuestionViewModel> questionViewModels = new List<QuestionViewModel>();
 
-      for (int i = 0; i < questions.Length; i++)
+      foreach (Questionaire questionaire in questionaireCatalog.Questionaires)
       {
-        questionViewModels[i] = Convert(questions[i]);
+        foreach (Question question in questionaire.Questions)
+        {
+          questionViewModels.Add(Convert(question));
+        }
       }
 
-      return questionViewModels;
+      return questionViewModels.ToArray();
     }
 
     private QuestionViewModel Convert(Question question)

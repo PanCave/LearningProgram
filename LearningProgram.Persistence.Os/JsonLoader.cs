@@ -5,7 +5,7 @@ namespace LearningProgram.Persistence.Os
 {
   public class JsonLoader
   {
-    public Questionaire LoadQuestionaireFromJson(JArray questions)
+    public Questionaire LoadQuestionaireFromJson(JArray questions, string name)
     {
       List<Question> questionList = new List<Question>();
       foreach (var question in questions)
@@ -29,7 +29,7 @@ namespace LearningProgram.Persistence.Os
         questionList.Add(new Question(questionText, answers, correctAnswers, correctAnswersIndexes, explanation));
       }
 
-      return new Questionaire(questionList.ToArray());
+      return new Questionaire(name, questionList.ToArray());
     }
   }
 }

@@ -26,7 +26,7 @@ namespace LearningProgram.Persistence.Os
       Guid guid = (Guid)sess["Guid"];
       int questionIndex = (int)sess["QuestionIndex"];
       List<int> wrongQuestionIndexes = sess["WrongQuestionIndexes"].Select(x => (int)x).ToList();
-      Questionaire questionaire = jsonLoader.LoadQuestionaireFromJson((JArray)sess["Questionaire"]);
+      Questionaire questionaire = jsonLoader.LoadQuestionaireFromJson((JArray)sess["Questionaire"], Path.GetFileName(filepath));
 
       return new Session(guid, questionIndex, questionaire, wrongQuestionIndexes);
     }

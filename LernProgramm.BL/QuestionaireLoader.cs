@@ -24,7 +24,7 @@ namespace LearningProgram.BL
 
       JArray questions = JArray.Parse(json);
 
-      return jsonLoader.LoadQuestionaireFromJson(questions);
+      return jsonLoader.LoadQuestionaireFromJson(questions, Path.GetFileName(filepath));
     }
   }
 }

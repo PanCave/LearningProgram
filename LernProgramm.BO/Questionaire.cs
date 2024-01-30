@@ -2,11 +2,13 @@
 {
   public class Questionaire
   {
-    public Questionaire(Question[] questions)
+    public Questionaire(string name, Question[] questions)
     {
+      Name = name;
       Questions = questions;
     }
 
+    public string Name { get; }
     public Question[] Questions { get; }
     public Question this[int index] => Questions[index];
 

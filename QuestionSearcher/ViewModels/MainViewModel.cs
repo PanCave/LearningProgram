@@ -2,14 +2,18 @@
 using LearningProgram.BO;
 using QuestionSearcher.Converter;
 using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace QuestionSearcher.ViewModels
 {
   internal class MainViewModel : INotifyPropertyChanged
   {
+    private readonly QuestionaireCatalog questionaireCatalog;
     private readonly Questionaire questionaire;
     private readonly QuestionaireMatcher questionaireMatcher;
     private readonly QuestionToQuestionViewModelConverter questionToQuestionViewModelConverter;
@@ -18,18 +22,27 @@ namespace QuestionSearcher.ViewModels
     private string searchText;
     private SearchMode searchMode;
 
-    public MainViewModel(Questionaire questionaire, QuestionaireMatcher questionaireMatcher, QuestionToQuestionViewModelConverter questionToQuestionViewModelConverter)
+    public MainViewModel(
+      QuestionaireCatalog questionaireCatalog,
+      QuestionaireMatcher questionaireMatcher,
+      QuestionToQuestionViewModelConverter questionToQuestionViewModelConverter,
+      ICommand addQuestionareCommand)
     {
       searchText = string.Empty;
-      questionViewModels = questionToQuestionViewModelConverter.ConvertQuestions(questionaire.Questions);
+      questionViewModels = questionToQuestionViewModelConverter.ConvertQuestionaireCatalog(questionaireCatalog);
       Matches = new QuestionViewModel[0];
+      this.questionaireCatalog = questionaireCatalog;
+      questionaireCatalog.Questionaires.CollectionChanged += Questionaires_CollectionChanged;
       this.questionaire = questionaire;
       this.questionaireMatcher = questionaireMatcher;
       this.questionToQuestionViewModelConverter = questionToQuestionViewModelConverter;
+      AddQuestionareCommand = addQuestionareCommand;
       searchMode = SearchMode.Combined;
       searchDelayTimer = new DispatcherTimer();
       searchDelayTimer.Interval = TimeSpan.FromMilliseconds(500);
       searchDelayTimer.Tick += SearchDelayTimer_Tick;
+      CatalogNames = new ObservableCollection<string>();
+      SetCatalogNames();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -95,7 +108,27 @@ namespace QuestionSearcher.ViewModels
       }
     }
 
+    public ObservableCollection<string> CatalogNames { get; set; }
+
     public QuestionViewModel[] Matches { get; set; }
+
+    public ICommand AddQuestionareCommand { get; }
+
+    private void SetCatalogNames()
+    {
+      CatalogNames.Clear();
+      foreach (Questionaire questionaire in questionaireCatalog.Questionaires)
+      {
+        CatalogNames.Add(questionaire.Name);
+      }
+    }
+
+    private void Questionaires_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+      questionViewModels = questionToQuestionViewModelConverter.ConvertQuestionaireCatalog(questionaireCatalog);
+      SetCatalogNames();
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CatalogNames)));
+    }
 
     private void SearchDelayTimer_Tick(object? sender, EventArgs e)
     {
