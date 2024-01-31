@@ -142,7 +142,7 @@ namespace QuestionMaker
         {
           // Now you have the CheckBox and TextBox, you can access their properties
           bool isChecked = checkBox.IsChecked ?? false;
-          string text = textBox.Text;
+          string text = textBox.Text.Trim();
 
           // Do something with isChecked and text
           // For example, just printing them
@@ -161,7 +161,7 @@ namespace QuestionMaker
         MessageBox.Show("Jede Frage muss mindestens eine richtige Antwort haben!");
         return null;
       }
-      Question question = new Question(txt_question.Text, answers.ToArray(), realAnswers.ToArray(), realAnswersIndexes.ToArray(), txt_explanation.Text);
+      Question question = new Question(txt_question.Text.Trim(), answers.ToArray(), realAnswers.ToArray(), realAnswersIndexes.ToArray(), txt_explanation.Text.Trim());
       return question;
     }
 
