@@ -48,13 +48,29 @@ namespace QuestionMaker
         answerGrid.Children.Add(checkBox);
         TextBox answerTextBox = new TextBox();
         answerTextBox.Text = answerText;
-        answerTextBox.Width = 200;
+        answerTextBox.Width = 400;
         // Add answerTextBox to second Column
         Grid.SetColumn(answerTextBox, 1);
         answerGrid.Children.Add(answerTextBox);
 
         lst_anwers.Items.Add(answerGrid);
       }
+    }
+
+    private void AddQuestionToQuestionaire()
+    {
+      Question? question = CreateQuestion();
+      if (question == null)
+        return;
+      questions.Add(question);
+      lst_questions.Items.Add(question);
+      Title = $"{questions.Count} Frage(n) im aktuellen Fragekatalog";
+      ClearQuestion();
+    }
+
+    private void btn_addAnswer_Click(object sender, RoutedEventArgs e)
+    {
+      AddAnswerField();
     }
 
     private void btn_addQuestion_Click(object sender, RoutedEventArgs e)
@@ -69,33 +85,36 @@ namespace QuestionMaker
       }
     }
 
-    private void UpdateQuestion()
+    private void btn_clearQuestion_Click(object sender, RoutedEventArgs e)
     {
-      Question? currentQuestion = lst_questions.SelectedItem as Question;
-      if (currentQuestion == null)
-        return;
-
-      int questionIndex = questions.IndexOf(currentQuestion);
-      questions.Remove(currentQuestion);
-
-      Question? newQuestion = CreateQuestion();
-      if (newQuestion == null)
-        return;
-      questions.Insert(questionIndex, newQuestion);
-
-      lst_questions.Items.Remove(currentQuestion);
-      lst_questions.Items.Insert(questionIndex, newQuestion);
+      txt_question.Text = string.Empty;
+      lst_anwers.Items.Clear();
+      AddAnswerField(2);
+      txt_explanation.Text = string.Empty;
+      lst_questions.UnselectAll();
+      btn_addQuestion.Content = "Frage hinzufügen";
+      questionMode = QuestionMode.Add;
     }
 
-    private void AddQuestionToQuestionaire()
+    private void btn_saveQuestionaire_Click(object sender, RoutedEventArgs e)
     {
-      Question? question = CreateQuestion();
-      if (question == null)
-        return;
-      questions.Add(question);
-      lst_questions.Items.Add(question);
-      Title = $"{questions.Count} Frage(n) im aktuellen Fragekatalog";
-      ClearQuestion();
+      SaveFileDialog saveFileDialog = new SaveFileDialog();
+      saveFileDialog.Filter = "Json-Dateien|*.json|Alle Dateien|*.*";
+      saveFileDialog.RestoreDirectory = true;
+      saveFileDialog.Title = "Speicherort auswählen";
+      saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+      if (saveFileDialog.ShowDialog() == true)
+      {
+        jsonSaver.SaveQuestionsAsJson(questions.ToArray(), saveFileDialog.FileName);
+      }
+    }
+
+    private void ClearQuestion()
+    {
+      txt_question.Text = string.Empty;
+      lst_anwers.Items.Clear();
+      AddAnswerField(2);
+      txt_explanation.Text = string.Empty;
     }
 
     private Question? CreateQuestion()
@@ -146,32 +165,6 @@ namespace QuestionMaker
       return question;
     }
 
-    private void ClearQuestion()
-    {
-      txt_question.Text = string.Empty;
-      lst_anwers.Items.Clear();
-      AddAnswerField(2);
-      txt_explanation.Text = string.Empty;
-    }
-
-    private void btn_addAnswer_Click(object sender, RoutedEventArgs e)
-    {
-      AddAnswerField();
-    }
-
-    private void btn_saveQuestionaire_Click(object sender, RoutedEventArgs e)
-    {
-      SaveFileDialog saveFileDialog = new SaveFileDialog();
-      saveFileDialog.Filter = "Json-Dateien|*.json|Alle Dateien|*.*";
-      saveFileDialog.RestoreDirectory = true;
-      saveFileDialog.Title = "Speicherort auswählen";
-      saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-      if (saveFileDialog.ShowDialog() == true)
-      {
-        jsonSaver.SaveQuestionsAsJson(questions.ToArray(), saveFileDialog.FileName);
-      }
-    }
-
     private void lst_questions_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       if (lst_questions.SelectedItem == null)
@@ -200,15 +193,22 @@ namespace QuestionMaker
       questionMode = QuestionMode.Edit;
     }
 
-    private void btn_clearQuestion_Click(object sender, RoutedEventArgs e)
+    private void UpdateQuestion()
     {
-      txt_question.Text = string.Empty;
-      lst_anwers.Items.Clear();
-      AddAnswerField(2);
-      txt_explanation.Text = string.Empty;
-      lst_questions.UnselectAll();
-      btn_addQuestion.Content = "Frage hinzufügen";
-      questionMode = QuestionMode.Add;
+      Question? currentQuestion = lst_questions.SelectedItem as Question;
+      if (currentQuestion == null)
+        return;
+
+      int questionIndex = questions.IndexOf(currentQuestion);
+      questions.Remove(currentQuestion);
+
+      Question? newQuestion = CreateQuestion();
+      if (newQuestion == null)
+        return;
+      questions.Insert(questionIndex, newQuestion);
+
+      lst_questions.Items.Remove(currentQuestion);
+      lst_questions.Items.Insert(questionIndex, newQuestion);
     }
   }
 }
